@@ -42,6 +42,22 @@ def main():
     with col2:
         st.title("📚 AI Educational Assistant")
         st.markdown("*Your personal AI tutor powered by advanced NPU acceleration*")
+        
+        # Add device status with colored badge
+        device_color = "green" if check_npu_availability() else "orange"
+        st.markdown(f"""
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <span style='
+                    background-color: {device_color};
+                    color: white;
+                    padding: 0.2rem 0.6rem;
+                    border-radius: 1rem;
+                    font-size: 0.8rem;
+                '>
+                    Running on CPU
+                </span>
+            </div>
+        """, unsafe_allow_html=True)
     
     # Device status indicator
     use_npu = check_npu_availability()

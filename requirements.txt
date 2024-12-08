@@ -1,3 +1,5 @@
-streamlit==1.24.0
-torch==2.0.0
-transformers==4.30.0
+streamlit
+onnxruntime
+PyPDF2  # for pdf_extractor.py
+reportlab  # for curriculum.py
+json

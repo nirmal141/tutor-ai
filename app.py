@@ -1,7 +1,6 @@
 import streamlit as st
 from model_handler import LocalLLM
 from prompts import EDUCATIONAL_PROMPTS, TEACHING_STYLES, CURRICULUM_PROMPT
-from pdf_extractor import extract_text_from_pdf
 import onnxruntime as ort
 from curriculum import generate_curriculum_pdf
 import io
@@ -14,120 +13,102 @@ def check_npu_availability():
 def main():
     # Page configuration
     st.set_page_config(
-        page_title="AI Educational Assistant",
+        page_title="Tutor AI`",
         page_icon="📚",
         layout="wide"
     )
 
-    # Custom CSS
+    # Updated Custom CSS for a more sophisticated look
     st.markdown("""
         <style>
         .main {
-            padding: 2rem;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         .stButton>button {
-            width: 100%;
-            background-color: #FF4B4B;
-            color: white;
-            font-weight: bold;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
         }
-        .stSelectbox {
-            margin-bottom: 1rem;
+        .stButton>button:hover {
+            background-color: #f8f9fa;
+            border-color: #2c3e50;
+        }
+        .stSelectbox select {
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        .stTextArea textarea {
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .stMarkdown {
+            color: #34495e;
+        }
+        .sidebar .sidebar-content {
+            background-color: #f8f9fa;
+        }
+        hr {
+            margin: 2rem 0;
+            border-color: #e0e0e0;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Header section with title and description
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.title("📚 AI Educational Assistant")
-        st.markdown("*Your personal AI tutor powered by advanced NPU acceleration*")
-        
-        # Add device status with colored badge
-        device_color = "green" if check_npu_availability() else "orange"
-        st.markdown(f"""
-            <div style='text-align: center; margin-bottom: 1rem;'>
-                <span style='
-                    background-color: {device_color};
-                    color: white;
-                    padding: 0.2rem 0.6rem;
-                    border-radius: 1rem;
-                    font-size: 0.8rem;
-                '>
-                    Running on CPU
-                </span>
-            </div>
-        """, unsafe_allow_html=True)
-    
+    # Simplified header
+    st.title("Tutor.ai")
+    st.markdown("*Made for teachers, for the students*")
+
     # Device status indicator
     use_npu = check_npu_availability()
     device = "NPU" if use_npu else "CPU"
     
     with st.sidebar:
-        st.header("💻‍🏫 Teacher Tools")
+        st.header("Configuration")
         teaching_style = st.multiselect(
-            "Select Teaching Styles:",
-            ["Visual", "Auditory", "Kinesthetic", "Reading/Writing"],
-            help="Select multiple teaching styles to incorporate"
+            "Teaching Styles",
+            ["Visual", "Auditory", "Kinesthetic", "Reading/Writing"]
         )
         
-        st.header("📚 Curriculum Resources")
-        uploaded_file = st.file_uploader("Upload curriculum/lesson plan (PDF)", type="pdf")
-        additional_context = ""
-        if uploaded_file is not None:
-            with st.spinner("Processing document..."):
-                additional_context = extract_text_from_pdf(uploaded_file)
-            st.success("Document processed successfully!")
-            
-        st.header("🎯 Learning Objectives")
-        objectives = st.text_area("Set learning objectives:", 
-            placeholder="Enter the key learning objectives for this lesson")
-    
-    # Main content area
-    st.markdown("---")
-    
-    # Two-column layout for input parameters
+        st.markdown("---")
+        
+        
+        objectives = st.text_area("Learning Objectives", 
+            placeholder="Enter key learning objectives")
+
+    # Main content area with cleaner layout
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
-            <div class="css-1r6slb0">
-                <h3>🎯 Learning Parameters</h3>
-        """, unsafe_allow_html=True)
+        st.subheader("Parameters")
+        grade = st.selectbox("Grade", ["1st Grade", "2nd Grade", "3rd Grade", "4th Grade", "5th Grade",
+             "6th Grade", "7th Grade", "8th Grade", "9th Grade", "10th Grade"])
         
-        grade = st.selectbox(
-            "Grade Level:",
-            ["1st Grade", "2nd Grade", "3rd Grade", "4th Grade", "5th Grade",
-             "6th Grade", "7th Grade", "8th Grade", "9th Grade", "10th Grade"]
-        )
+        subject = st.selectbox("Subject",
+            ["Mathematics", "Science", "Language", "History", "Art", "Music", "Physical Education"])
         
-        subject = st.selectbox(
-            "Subject:",
-            ["Mathematics", "Science", "Language", "History", "Art", "Music", "Physical Education"]
-        )
-        
-        language = st.selectbox(
-            "Output Language:",
+        language = st.selectbox("Language",
             ["English", "Spanish", "French", "German", "Italian", "Portuguese", "Hindi", 
-             "Chinese (Simplified)", "Japanese", "Korean"]
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+             "Chinese (Simplified)", "Japanese", "Korean"])
 
     with col2:
-        st.subheader("🔄 Teaching Mode")
-        mode = st.radio(
-            "Select Mode:",
-            ["Learn Concept", "Practice Questions", "Get Explanation"],
-            help="Choose the type of teaching resource you need"
-        )
+        st.subheader("Mode")
+        mode = st.radio("Select",
+            ["Learn Concept", "Practice Questions", "Get Explanation"])
         
-        difficulty_level = st.select_slider(
-            "Content Difficulty:",
+        difficulty_level = st.select_slider("Difficulty",
             options=["Basic", "Intermediate", "Advanced"],
-            value="Intermediate",
-            help="Adjust difficulty level of the content"
-        )
-    
+            value="Intermediate")
+
     # Initialize session state for conversation history if it doesn't exist
     if 'conversation_history' not in st.session_state:
         st.session_state.conversation_history = []
@@ -175,7 +156,7 @@ def main():
                 # Get the streaming response
                 response_stream = llm.generate(
                     prompt=prompt,
-                    additional_context=additional_context,
+                    
                     teaching_style=teaching_style if teaching_style else None
                 )
                 
@@ -207,32 +188,28 @@ def main():
             except Exception as e:
                 st.error(f"Error generating response: {str(e)}")
     
-    # Display conversation history
-    st.markdown("### 📝 Conversation History:")
-    
-    # Reverse the conversation history to show latest first
-    for i, (question, answer) in enumerate(reversed(st.session_state.conversation_history)):
-        # Calculate the actual message number (counting from the end)
-        msg_num = len(st.session_state.conversation_history) - i
+    # Updated conversation history display
+    if st.session_state.conversation_history:
+        st.markdown("### History")
         
-        # Question
-        st.markdown(f"**Question {msg_num}:**")
-        st.markdown(f"```\n{question}\n```")
-        
-        # Answer
-        st.markdown(f"**Response {msg_num}:**")
-        st.markdown(answer)
-        
-        # Feedback buttons for each response
-        col1, col2, col3, col4 = st.columns([1,1,1,3])
-        with col1:
-            st.button(f"💾 Save_{msg_num}")
-        with col2:
-            st.button(f"👍 Helpful_{msg_num}")
-        with col3:
-            st.button(f"👎 Not Helpful_{msg_num}")
-        
-        st.markdown("---")
+        for i, (question, answer) in enumerate(reversed(st.session_state.conversation_history)):
+            msg_num = len(st.session_state.conversation_history) - i
+            
+            st.markdown(f"**Q{msg_num}:**")
+            st.markdown(f"```\n{question}\n```")
+            
+            st.markdown(f"**A{msg_num}:**")
+            st.markdown(answer)
+            
+            cols = st.columns([0.1, 0.1, 0.1, 0.7])
+            with cols[0]:
+                st.button(f"💾_{msg_num}")
+            with cols[1]:
+                st.button(f"👍_{msg_num}")
+            with cols[2]:
+                st.button(f"👎_{msg_num}")
+            
+            st.markdown("---")
     
     # Curriculum Generator Tab
     if st.sidebar.checkbox("📚 Show Curriculum Generator"):
@@ -266,7 +243,7 @@ def main():
                     response_stream = llm.generate(
                         prompt=curriculum_prompt,
                         max_length=4096,
-                        additional_context=additional_context
+                        
                     )
                     
                     # Process the stream

@@ -123,6 +123,7 @@ def main():
     # Initialize the input key in session state if it doesn't exist
     if 'user_input' not in st.session_state:
         st.session_state.user_input = ""
+        
     
     user_input = st.text_area(
         "Enter your question or topic:",
@@ -185,7 +186,7 @@ def main():
                 
                 # Clear the input
                 st.session_state.user_input = ""
-                st.experimental_rerun()
+                st.rerun()
                 
             except Exception as e:
                 st.error(f"Error generating response: {str(e)}")

@@ -1,5 +1,4 @@
 import requests
-import streamlit as st
 
 class LocalLLM:
     def __init__(self, device="CPU"):

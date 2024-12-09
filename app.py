@@ -1,9 +1,6 @@
 import streamlit as st
 from model_handler import LocalLLM
-from prompts import EDUCATIONAL_PROMPTS, TEACHING_STYLES, CURRICULUM_PROMPT
-import onnxruntime as ort
-from curriculum import generate_curriculum_pdf
-import io
+from prompts import EDUCATIONAL_PROMPTS
 import json
 
 def check_npu_availability():
@@ -208,81 +205,6 @@ def main():
                 st.button(f"👎_{msg_num}")
             
             st.markdown("---")
-    
-    # Curriculum Generator Tab
-    if st.sidebar.checkbox("📚 Show Curriculum Generator"):
-        st.markdown("## 📚 Curriculum Generator")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            duration_value = st.number_input("Duration", min_value=1, max_value=12, value=1)
-        with col2:
-            duration_unit = st.selectbox(
-                "Duration Unit",
-                ["Weeks", "Months"]
-            )
-        
-        curriculum_prompt = CURRICULUM_PROMPT.format(
-            grade=grade,
-            subject=subject,
-            duration_value=duration_value,
-            duration_unit=duration_unit,
-            language=language
-        )
-        
-        if st.button("🎯 Generate Curriculum"):
-            with st.spinner("Generating curriculum plan..."):
-                try:
-                    # Create a placeholder for the streaming response
-                    response_placeholder = st.empty()
-                    curriculum_content = ""
-                    
-                    # Get the streaming response
-                    response_stream = llm.generate(
-                        prompt=curriculum_prompt,
-                        max_length=4096,
-                        
-                    )
-                    
-                    # Process the stream
-                    for chunk in response_stream:
-                        if chunk:
-                            try:
-                                # Parse the chunk
-                                chunk_data = json.loads(chunk.decode('utf-8').strip('data: ').strip())
-                                if 'choices' in chunk_data and len(chunk_data['choices']) > 0:
-                                    content = chunk_data['choices'][0].get('delta', {}).get('content', '')
-                                    if content:
-                                        curriculum_content += content
-                                        # Update the response in real-time
-                                        response_placeholder.markdown(curriculum_content + "▌")
-                            except json.JSONDecodeError:
-                                continue
-                    
-                    # Final update without the cursor
-                    response_placeholder.markdown(curriculum_content)
-                    
-                    # Generate PDF
-                    try:
-                        pdf = generate_curriculum_pdf(
-                            curriculum_content,  # Now passing the complete string
-                            grade,
-                            subject,
-                            f"{duration_value} {duration_unit}"
-                        )
-                        
-                        # Create download button
-                        st.download_button(
-                            label="📥 Download PDF",
-                            data=pdf,
-                            file_name=f"curriculum_{grade}_{subject}_{duration_value}_{duration_unit}.pdf",
-                            mime="application/pdf"
-                        )
-                    except Exception as e:
-                        st.error(f"Error generating PDF: {str(e)}")
-                        
-                except Exception as e:
-                    st.error(f"Error generating curriculum: {str(e)}")
 
 if __name__ == "__main__":
     main()

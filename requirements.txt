@@ -1,5 +1,6 @@
-streamlit
-onnxruntime
-PyPDF2  # for pdf_extractor.py
-reportlab  # for curriculum.py
-json
+streamlit==1.32.0
+onnxruntime==1.16.3
+numpy==1.24.3
+transformers==4.36.2
+requests==2.31.0
+protobuf==3.20.0

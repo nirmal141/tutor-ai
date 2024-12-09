@@ -7,8 +7,7 @@ import io
 import json
 
 def check_npu_availability():
-    providers = ort.get_available_providers()
-    return 'NPUExecutionProvider' in providers
+    return False  # Simplified for deployment
 
 def main():
     # Page configuration
@@ -69,8 +68,7 @@ def main():
     st.markdown("*Made for teachers, for the students*")
 
     # Device status indicator
-    use_npu = check_npu_availability()
-    device = "NPU" if use_npu else "CPU"
+    device = "CPU"  # Always use CPU for now
     
     with st.sidebar:
         st.header("Configuration")

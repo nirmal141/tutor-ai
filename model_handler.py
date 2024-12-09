@@ -1,14 +1,10 @@
 import requests
-import onnxruntime as ort
-import numpy as np
-from transformers import AutoTokenizer
 import streamlit as st
 
 class LocalLLM:
-    def __init__(self, device="NPU"):
+    def __init__(self, device="CPU"):
         self.device = device
         self.api_base = "http://127.0.0.1:1234"
-        self.providers = ['NPUExecutionProvider'] if self.device == "NPU" else ['CPUExecutionProvider'] 
         self.timeout = 60
 
     def generate(self, prompt, max_length=2048, additional_context=None, teaching_style=None):
@@ -27,14 +23,13 @@ class LocalLLM:
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0.7,
                     "max_tokens": max_length,
-                    "stream": True  # Enable streaming
+                    "stream": True
                 },
                 timeout=self.timeout,
-                stream=True  # Enable streaming for requests
+                stream=True
             )
             
             if response.status_code == 200:
-                # Return the response iterator
                 return response.iter_lines()
             else:
                 raise Exception(f"Error: {response.status_code}, {response.text}")

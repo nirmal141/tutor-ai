@@ -1,5 +1,5 @@
-setuptools>=44.0.0,<45.0.0
-wheel>=0.37.1
+setuptools==65.5.0
+wheel==0.40.0
 streamlit==1.32.0
 numpy==1.24.3
 transformers==4.36.2

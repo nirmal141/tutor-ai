@@ -2,6 +2,7 @@
 
 An intelligent educational assistant powered by NPU-accelerated AI, built with Streamlit. This application helps teachers and students by providing personalized educational content, curriculum generation, and interactive learning experiences.
 
+
 ## Features
 
 - 🎯 Multiple Teaching Modes (Learn Concept, Practice Questions, Get Explanation)
@@ -10,6 +11,7 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 - 🌍 Multi-language Support
 - 📑 PDF Document Processing
 - 💻 NPU Acceleration Support
+
 
 ## Authors
 - **Pruthvi Taranath**  
@@ -24,6 +26,7 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 - Streamlit
 - ONNX Runtime
 - Other dependencies (see requirements.txt)
+
 
 ## Installation
 

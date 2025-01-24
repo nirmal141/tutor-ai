@@ -12,8 +12,8 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 - 💻 NPU Acceleration Support
 
 ## Authors
-- **Pruthvi Taranath**
-- **Nirmal Boghara**
+- Pruthvi Taranath
+- Nirmal Boghara
 
 ## Requirements
 

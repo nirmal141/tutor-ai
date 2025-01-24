@@ -11,6 +11,10 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 - 📑 PDF Document Processing
 - 💻 NPU Acceleration Support
 
+## Authors
+- **Pruthvi Taranath**
+- **Nirmal Boghara**
+
 ## Requirements
 
 - Python 3.8+

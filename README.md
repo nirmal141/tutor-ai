@@ -34,7 +34,7 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 
 ```bash
 git clone https://github.com/yourusername/tutor-ai.git
-cd tutor-ai
+cd tutor-ai/src
 ```
 
 2. Install dependencies:

@@ -3,9 +3,6 @@ from model_handler import LocalLLM
 from prompts import EDUCATIONAL_PROMPTS
 import json
 
-def check_npu_availability():
-    return False  # Simplified for deployment
-
 def main():
     # Page configuration
     st.set_page_config(
@@ -64,8 +61,6 @@ def main():
     st.title("Tutor.ai")
     st.markdown("*Made for teachers, for the students*")
 
-    # Device status indicator
-    device = "CPU"  # Always use CPU for now
     
     with st.sidebar:
         st.header("Configuration")
@@ -127,7 +122,7 @@ def main():
     )
     
     # Initialize LLM and generate response
-    llm = LocalLLM(device=device)
+    llm = LocalLLM()
     
     if st.button("📚 Generate Response", help="Click to get AI-powered teaching assistance"):
         if not user_input.strip():

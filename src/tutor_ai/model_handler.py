@@ -1,8 +1,7 @@
 import requests
 
 class LocalLLM:
-    def __init__(self, device="CPU"):
-        self.device = device
+    def __init__(self):
         self.api_base = "http://127.0.0.1:1234"
         self.timeout = 60
 

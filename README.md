@@ -58,6 +58,9 @@ streamlit run app.py
 5. Enter your question or topic
 6. Get AI-generated responses
 
+## Testing Instructions
+
+
 ## License
 
 [MIT License](LICENSE)

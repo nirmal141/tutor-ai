@@ -49,7 +49,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Usage
+## Usage (Prompts)
 
 1. Select teaching styles and set learning parameters
 2. Upload curriculum documents (optional)

@@ -5,3 +5,4 @@ numpy>=1.25.0
 transformers==4.36.2
 requests==2.31.0
 protobuf>=3.21.0
+pytest

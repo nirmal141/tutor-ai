@@ -60,6 +60,8 @@ streamlit run app.py
 
 ## Testing Instructions
 
+1. pytest tests/
+
 
 ## License
 

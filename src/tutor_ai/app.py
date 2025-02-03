@@ -98,7 +98,7 @@ def main():
     with col2:
         st.subheader("Mode")
         mode = st.radio("Select",
-            ["Learn Concept", "Practice Questions", "Get Explanation", "Generate Curriculum", "Prof. Yann Lecun"])
+            ["Learn Concept", "Practice Questions", "Get Explanation", "Generate Curriculum", "Prof. Yann Lecun", "Andrew Ng"])
         
         if mode == "Generate Curriculum":
             st.session_state.duration_value = st.number_input(
@@ -161,7 +161,7 @@ def main():
         
     def fetch_youtube_videos(api_key, query):
         """Fetch YouTube videos based on a search query."""
-        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&maxResults=5"
+        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&maxResults=5&order=date"
         response = requests.get(url)
         
         # Check if the response is successful
@@ -208,6 +208,9 @@ def main():
         if mode == "Prof. Yann Lecun":
             st.markdown("👨‍🏫 Prof. Yann LeCun is on his way to solve and explain your doubts and concepts...")
 
+        if mode == "Andrew Ng":
+            st.markdown("👨‍🏫 Prof. Andrew Ng is on his way to solve and explain your doubts and concepts...")
+
 
         # Create appropriate prompt
         if mode == "Generate Curriculum":
@@ -221,29 +224,10 @@ def main():
 
 
         if mode == "Prof. Yann Lecun":
-            
-            # api_key = 'AIzaSyDwC4L7KV83avQVAshiAHeJGHfJUZuy9wM'
-            # videos = fetch_youtube_videos(api_key, "Yann Lecun")
-            # transcripts = []
-
-            # print(transcripts)
-
-            # for video in videos:
-            #     video_id = video['id']['videoId']
-            #     transcript = fetch_video_transcript(video_id)
-            #     if transcript:
-            #         transcripts.append(transcript)
-
-            # combined_transcripts = "\n".join(transcripts)
-            
-            # website_url = "https://atcold.github.io/NYU-DLSP21/"
-            # print("Website fetced succesully")  # Replace with the actual website URL
-            # website_content = fetch_website_content(website_url)
-            # if website_content:
-                # Process the website_content to extract relevant information
 
             api_key = 'AIzaSyDwC4L7KV83avQVAshiAHeJGHfJUZuy9wM'  # Replace with your YouTube Data API key
-            query = "Yann LeCun's brief explanation on {user_input}"
+            query = f"{user_input} by Prof Yann LeCun"
+
             
             # Fetch videos
             videos = fetch_youtube_videos(api_key, query)
@@ -265,6 +249,33 @@ def main():
         
             prompt = f"Hey, I want you to take on the persona of Professor Yann LeCun and strictly explain things from:\n{combined_transcripts}\n\n just like he would in a lecture. Start by greeting the students as Prof. Yann LeCun, introduce the topic concisely, and then explain it with real-world examples and practical applications. Keep the explanations brief but insightful, ensuring clarity without excessive complexity. Throughout the explanation, adopt LeCuns engaging and accessible teaching style. End by inviting students to ask questions if they have any doubts. The topic for today's explanation is:{user_input}"
         # else:
+
+        elif mode == "Andrew Ng":
+
+            api_key = 'AIzaSyDwC4L7KV83avQVAshiAHeJGHfJUZuy9wM'  # Replace with your YouTube Data API key
+            query = f"{user_input} by Andrew Ng"
+
+            
+            # Fetch videos
+            videos = fetch_youtube_videos(api_key, query)
+            
+            # Initialize a variable to hold all transcripts
+            combined_transcripts = ""
+
+            for video in videos:
+                if 'id' in video and 'videoId' in video['id']:  # Check if 'videoId' exists
+                    video_id = video['id']['videoId']
+                    transcript = fetch_video_transcript(video_id)
+                    if transcript:
+                        combined_transcripts += f"Transcript for '{video['snippet']['title']}':\n{transcript}\n\n"
+                        print(combined_transcripts)
+                else:
+                    print(f"Skipping item without videoId: {video}")
+            # Print the combined transcripts
+
+        
+            prompt = f"Hey, I want you to take on the persona of Andrew Ng and strictly explain things from:\n{combined_transcripts}\n\n just like he would in a lecture in the topic of {user_input}"
+        
             
         else:
             prompt = EDUCATIONAL_PROMPTS[mode].format(

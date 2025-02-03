@@ -7,3 +7,4 @@ requests==2.31.0
 protobuf>=3.21.0
 pytest
 youtube-transcript-api
+fpdf

@@ -6,6 +6,9 @@ import json
 from datetime import datetime
 import requests  # Add this import for making HTTP requests
 from youtube_transcript_api import YouTubeTranscriptApi
+from sentence_transformers import SentenceTransformer
+import numpy as np
+import faiss
 
 def main():
     # Page configuration
@@ -158,28 +161,53 @@ def main():
     #     except requests.RequestException as e:
     #         st.error(f"Error fetching website content: {str(e)}")
     #         return None
+    def get_embeddings(text_chunks):
+        """Generate embeddings for each chunk of text."""
+        return embedding_model.encode(text_chunks, convert_to_numpy=True)
+    
+    def store_transcripts_in_faiss(transcripts):
+        """Store transcript embeddings in a FAISS index."""
+        
+        # Split transcripts into chunks (sentences or paragraphs)
+        text_chunks = transcripts.split("\n")  
+        
+        # Convert text chunks to embeddings
+        embeddings = get_embeddings(text_chunks)
+        
+        # Create FAISS index
+        dimension = embeddings.shape[1]  # Get embedding size
+        index = faiss.IndexFlatL2(dimension)  
+        index.add(embeddings)  # Add embeddings to the index
+        
+        return index, text_chunks  # Return index and original text chunks
+    
+    def retrieve_relevant_transcript(index, text_chunks, query, top_k=3, chunk_size=150):
+        """Retrieve the most relevant transcript segments based on the query."""
+        
+        # Get embedding for query
+        query_embedding = get_embeddings([query])
+        
+        # Search in FAISS index
+        distances, indices = index.search(query_embedding, top_k)
+        
+        # Retrieve top-k most relevant text segments
+        relevant_texts = []
+        for idx in indices[0]:
+            start_idx = max(0, idx - chunk_size // 2)  # Ensure valid index
+            end_idx = min(len(text_chunks), idx + chunk_size // 2)
+            relevant_texts.append(" ".join(text_chunks[start_idx:end_idx]))
+
+        return " ".join(relevant_texts)
         
     def fetch_youtube_videos(api_key, query):
         """Fetch YouTube videos based on a search query."""
-        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&maxResults=5&order=date"
+        url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&key={api_key}&maxResults=2&order=date"
         response = requests.get(url)
         
         # Check if the response is successful
         if response.status_code == 200:
             try:
                 return response.json().get('items', [])
-                # result = []
-                # for video in videos:
-                #     video_id = video['id']['videoId']
-                #     title = video['snippet']['title']
-                #     video_url = f"https://www.youtube.com/watch?v={video_id}"
-                    
-                #     result.append({
-                #         'title': title,
-                #         'video_id': video_id,
-                #         'video_url': video_url
-                #     })
-                # return result
             except ValueError as e:
                 print(f"Error decoding JSON: {str(e)}")
                 print("Response text:", response.text)  # Print the response text for debugging
@@ -190,13 +218,24 @@ def main():
             return []
 
     def fetch_video_transcript(video_id):
-        """Fetch transcript of a video by its ID."""
+        """Fetch transcript of a video and store as embeddings."""
         try:
             transcript = YouTubeTranscriptApi.get_transcript(video_id)
-            return " ".join([entry['text'] for entry in transcript])
+            full_text = " ".join([entry['text'] for entry in transcript])
+            
+            # Store transcript in FAISS
+            index, text_chunks = store_transcripts_in_faiss(full_text)
+            
+            return index, text_chunks  # Return the index and stored text
         except Exception as e:
-            print(f"Error fetching transcript for video {video_id}: {str(e)}")
-            return None
+            print(f"Error fetching transcript: {str(e)}")
+            return None, None
+
+        
+    embedding_model = SentenceTransformer('paraphrase-MiniLM-L3-v2')  # Lightweight & fast
+
+
+
     
     
 
@@ -233,21 +272,21 @@ def main():
             videos = fetch_youtube_videos(api_key, query)
             
             # Initialize a variable to hold all transcripts
-            combined_transcripts = ""
 
             for video in videos:
                 if 'id' in video and 'videoId' in video['id']:  # Check if 'videoId' exists
                     video_id = video['id']['videoId']
-                    transcript = fetch_video_transcript(video_id)
-                    if transcript:
-                        combined_transcripts += f"Transcript for '{video['snippet']['title']}':\n{transcript}\n\n"
-                        print(combined_transcripts)
+                    index, text_chunks = fetch_video_transcript(video_id)
+                    if index and text_chunks:
+                        relevant_text = retrieve_relevant_transcript(index, text_chunks, user_input, top_k=5)
+                        print(relevant_text)
+                        
                 else:
                     print(f"Skipping item without videoId: {video}")
             # Print the combined transcripts
 
         
-            prompt = f"Hey, I want you to take on the persona of Professor Yann LeCun and strictly explain things from:\n{combined_transcripts}\n\n just like he would in a lecture. Start by greeting the students as Prof. Yann LeCun, introduce the topic concisely, and then explain it with real-world examples and practical applications. Keep the explanations brief but insightful, ensuring clarity without excessive complexity. Throughout the explanation, adopt LeCuns engaging and accessible teaching style. End by inviting students to ask questions if they have any doubts. The topic for today's explanation is:{user_input}"
+                prompt = f"Hey, I want you to take on the persona of Prof. Yann LeCun and explain:\n\n{relevant_text}\n\n using his teaching style."
         # else:
 
         elif mode == "Andrew Ng":
@@ -259,23 +298,20 @@ def main():
             # Fetch videos
             videos = fetch_youtube_videos(api_key, query)
             
-            # Initialize a variable to hold all transcripts
-            combined_transcripts = ""
-
             for video in videos:
                 if 'id' in video and 'videoId' in video['id']:  # Check if 'videoId' exists
                     video_id = video['id']['videoId']
-                    transcript = fetch_video_transcript(video_id)
-                    if transcript:
-                        combined_transcripts += f"Transcript for '{video['snippet']['title']}':\n{transcript}\n\n"
-                        print(combined_transcripts)
+                    index, text_chunks = fetch_video_transcript(video_id)
+                    if index and text_chunks:
+                        relevant_text = retrieve_relevant_transcript(index, text_chunks, user_input, top_k=5)
+                        
                 else:
                     print(f"Skipping item without videoId: {video}")
             # Print the combined transcripts
 
         
-            prompt = f"Hey, I want you to take on the persona of Andrew Ng and strictly explain things from:\n{combined_transcripts}\n\n just like he would in a lecture in the topic of {user_input}"
-        
+                prompt = f"Hey, I want you to take on the persona of Andrew Ng and explain:\n\n{relevant_text}\n\n using his teaching style."
+       
             
         else:
             prompt = EDUCATIONAL_PROMPTS[mode].format(

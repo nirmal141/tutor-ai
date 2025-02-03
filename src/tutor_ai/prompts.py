@@ -10,8 +10,9 @@ Include (in {language}):
 4. Common misconceptions and how to address them
 5. Visual learning suggestions (diagrams, charts, etc.)
 6. Interactive activities for classroom engagement""",
-    
-    "Practice Questions": """Please generate the entire response in {language} language.
+
+
+   "Practice Questions": """Please generate the entire response in {language} language.
 
 As a {grade} {subject} teacher, create a differentiated assessment package for {topic}.
     
@@ -36,6 +37,21 @@ Include (in {language}):
 5. Real-world applications
 6. Discussion prompts for class engagement
 7. Tips for addressing diverse learning needs"""
+}
+
+PROFESSOR_PROMPTS = {
+    "Professor": """Please generate the entire response in {language} language.
+
+As a professor, provide a detailed explanation on the topic of {topic}. 
+    
+Include (in {language}):
+1. In-depth analysis of the subject matter
+2. Relevant theories and concepts
+3. Historical context and significance
+4. Current trends and research in the field
+5. Practical applications and implications
+6. Discussion questions to engage students
+7. Recommendations for further reading and study""",
 }
 
 TEACHING_STYLES = {
@@ -111,4 +127,6 @@ Include (in {language}):
 
 
 Please provide a comprehensive plan that scales appropriately for {duration_value} {duration_unit}, with detailed breakdowns and specific examples for each section. Format the response in a clear, structured manner with sections and subsections. Focus more on generating the timeline of the course structure."""
+
+
     

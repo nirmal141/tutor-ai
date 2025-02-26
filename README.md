@@ -14,8 +14,6 @@ An intelligent educational assistant powered by NPU-accelerated AI, built with S
 
 
 ## Authors
-- **Pruthvi Taranath**  
-  
 - **Nirmal Boghara**  
   Contact: nb3964@nyu.edu 
 
